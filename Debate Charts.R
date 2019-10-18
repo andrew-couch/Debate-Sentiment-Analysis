@@ -62,11 +62,39 @@ df %>%
   facet_wrap(~character, scales = "free") + 
   coord_flip()
 
+df %>% 
+  unnest_tokens(trigram, "text", token = "ngrams", n = 3) %>% 
+  count(character, trigram) %>% 
+  group_by(character) %>% 
+  top_n(n, n =5)
+
+df %>% 
+  unnest_tokens(trigram, "text", token = "ngrams", n = 3) %>% 
+  count(character, trigram) %>% 
+  bind_tf_idf(trigram, character,n) %>% 
+  top_n(tf_idf, n =5)
+
+
+#Debate words
+df %>% 
+  unnest_tokens(word, "text") %>% 
+  anti_join(stop_words) %>% 
+  count(debate, word) %>% 
+  group_by(debate) %>% 
+  top_n(n, n =5)
+
+df %>% 
+  unnest_tokens(word, "text") %>% 
+  anti_join(stop_words) %>% 
+  count(debate, word) %>% 
+  bind_tf_idf(word, debate, n) %>% 
+  group_by(debate) %>% 
+  top_n(tf_idf, n = 5)
+
 
 #Tableau Data
 
 #Candidate Top words 
-
 df %>% 
   unnest_tokens(word, "text") %>% 
   anti_join(stop_words) %>% 
@@ -132,6 +160,7 @@ df %>%
   arrange(debate, -tf_idf)
 
 
+#Topic Modeling
 df %>% 
   unnest_tokens(word, "text") %>% 
   anti_join(stop_words) %>% 
