@@ -68,12 +68,24 @@ df %>%
   group_by(character) %>% 
   top_n(n, n =5)
 
-df %>% 
+trigramtfidf <- df %>% 
   unnest_tokens(trigram, "text", token = "ngrams", n = 3) %>% 
   count(character, trigram) %>% 
   bind_tf_idf(trigram, character,n) %>% 
-  top_n(tf_idf, n =5)
+  group_by(character) %>% 
+  top_n(tf_idf, n = 3) %>% 
+  ggplot(aes(x = reorder_within(trigram, tf_idf, character), 
+             y = tf_idf, 
+             color = character, 
+             fill = character)) + 
+  geom_col() +
+  scale_x_reordered() +
+  facet_wrap(~character, scales = "free") +
+  coord_flip() + 
+  theme_economist() + 
+  theme(legend.position = "None")
 
+ggsave("debate.png", plot = trigramtfidf, device = "png",  width = 16, height = 9, units = "in", dpi = 500)
 
 #Debate words
 df %>% 
